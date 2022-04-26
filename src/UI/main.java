@@ -6,7 +6,7 @@ import javax.swing.JOptionPane;
 import entities.*;
 
 
-public class main {
+public class Ppal {
 
 	public static void main(String[] args) {
 		Menu();
