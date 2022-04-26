@@ -90,6 +90,7 @@ public class Ppal {
 			 pstmt.setInt(4, pIns.getStock());
 			 pstmt.setBoolean(5, pIns.isShippingIncluded());
 			 
+			 //ejecutar
 			 pstmt.executeUpdate();
 			 
 			 ResultSet keyResultSet=pstmt.getGeneratedKeys();
