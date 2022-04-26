@@ -51,5 +51,9 @@ public class Product {
 	
 	public Product() {};
 	
+	public String mostrarDatos() {
+		return this.getId() +"     "+this.getName() +"       "+ this.getDescription()+"       $"+
+		this.getPrice() + "    " + this.getStock() + "             "+ this.isShippingIncluded();}
+	
 	
 }
