@@ -3,6 +3,8 @@ package UI;
 import java.sql.*;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
+import java.util.Objects;
+
 import javax.swing.JOptionPane;
 import entities.*;
 
@@ -10,6 +12,15 @@ import entities.*;
 public class Ppal {
 
 	public static void main(String[] args) {
+		
+		// registrar el conector
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		
 		Menu();
 	}
 		
@@ -75,24 +86,24 @@ public class Ppal {
 		try {
 			//Creamos la conexion
 			conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
-			
-				//Definimos la query
-				 PreparedStatement pstmt = conn.prepareStatement(
-		            "INSERT INTO Product(name,description,price,stock,shippingIncluded) values (?,?,?,?,?)"
-		           	,PreparedStatement.RETURN_GENERATED_KEYS
-		         );
-				 
-				 
+			 	 
 				 /*
 				 
 				 Como el IdProduct es un atributo autoincremental, no le asignamos un numero arbitrario,
-				 se l dejamos a la DB.
+				 se lo dejamos a la DB.
+				 De todas formas, debemos recuperar el valor para utilizarlo
 				 
+				 Malas practicas: Utilizar Select max id para obtenber el ultimo (consume muchos recursos)
 				 
 				 
 				 */
-				 
-				 //Mapeamos los valores valores
+			
+				//Definimos la query
+				PreparedStatement pstmt = conn.prepareStatement(
+				"INSERT INTO Product(name,description,price,stock,shippingIncluded) values (?,?,?,?,?)"
+	           	,PreparedStatement.RETURN_GENERATED_KEYS);
+			
+				 //Mapeamos los valores ?1, ?2, ...
 				 pstmt.setString(1, pIns.getName());
 				 pstmt.setString(2, pIns.getDescription());
 				 pstmt.setDouble(3, pIns.getPrice());
@@ -102,17 +113,18 @@ public class Ppal {
 				 //Ejecutamos la Query
 				 pstmt.executeUpdate();
 				 
+				 
 				 ResultSet keyResultSet=pstmt.getGeneratedKeys();
 	
 				 //Obtengo el id autoincremental de la DB
 		         if(keyResultSet!=null && keyResultSet.next()) {
 		        	 int id=keyResultSet.getInt(1);
-		             System.out.println("ID: "+id);
+//		             System.out.println("ID: "+id);
 		             pIns.setId(id);
 		         }
 		         
 		    
-	         // cerrar conexion
+	         // Cerrar conexion
 		         if(keyResultSet!=null){keyResultSet.close();}
 		         if(pstmt!=null){pstmt.close();}
 		         conn.close();
@@ -180,9 +192,15 @@ public static void buscarProducto() {
 			conn.close();
 
 			// Mostramos el producto
-		   System.out.println("Id        Name                  Description         Price      Stock      shippingIncluded");
-		   System.out.println("------------------------------------------------------------------------------------------");    
-		   System.out.println(p.mostrarDatos());
+			if (p.getId() != 0) {
+				System.out.println("Id        Name                  Description         Price      Stock      shippingIncluded");
+				System.out.println("------------------------------------------------------------------------------------------");    
+				System.out.println(p.mostrarDatos());
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Id inexistente");
+			}
+		   
 			
 		} catch (SQLException ex) {
 			// Manejo de errores
