@@ -363,12 +363,12 @@ public static void buscarProducto() {
 			 
 			 pstmUpdate.executeUpdate();
 			 
-			 //rs = pstmUpdate.getGeneratedKeys();
+			 rs = pstmUpdate.getGeneratedKeys();
 			 
-//			 if(rs != null && rs.next()) {
-//	        	 int id = rs.getInt(1);
-//	             p.setId(id);
-//			 }
+			 if(rs != null && rs.next()) {
+	        	 int id = rs.getInt(1);
+	             p.setId(id);
+			 }
 			 
 			 p.setId(idBuscado);
 			 
