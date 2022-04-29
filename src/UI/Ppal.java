@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 import javax.swing.JOptionPane;
+
+import com.mysql.cj.xdevapi.Result;
+
 import entities.*;
 
 
@@ -52,6 +55,14 @@ public class Ppal {
 				
 				case "3":
 					altaProducto();
+					break;
+					
+				case "4":
+					bajaProducto();
+					break;
+					
+				case "5":
+					actualizaProducto();
 					break;
 					
 				default:
@@ -268,9 +279,113 @@ public static void buscarProducto() {
 	} // end listarProductos
 	
 	
+	public static void bajaProducto() {
+		
+		Connection conn = null;
+		
+		try {
+			
+			// Creamos conexion
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
+			
+			// Definimos la query
+			PreparedStatement stmt = conn.prepareStatement("DELETE FROM Product WHERE idProduct=?", PreparedStatement.RETURN_GENERATED_KEYS);
+			
+			// Seteamos el parámetro a la query
+			stmt.setInt(1, Integer.parseInt(JOptionPane.showInputDialog("Ingrese el id del producto que desea eliminar")));
+			
+			// Ejecutamos la query
+			stmt.executeUpdate();
+			
+			//Cerramos recursos
+            if(stmt!=null){stmt.close();}
+			conn.close();
+			
+			JOptionPane.showMessageDialog(null, "Registro eliminado con exito");
+			
+		} catch (SQLException ex) {
+			// Manejo de errores
+		    System.out.println("SQLException: " + ex.getMessage());
+		    System.out.println("SQLState: " + ex.getSQLState());
+		    System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		
+	} // end bajaProducto
 	
-	
-	
+
+	public static void actualizaProducto() {
+		
+		 Connection conn = null;
+		 ResultSet rs = null;
+		 
+		 try {
+			 
+			 conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
+			 
+			 Integer idBuscado = Integer.parseInt(JOptionPane.showInputDialog("Ingrese el id: "));
+			 
+			 PreparedStatement pstmtShow = conn.prepareStatement("SELECT * FROM Product WHERE idProduct=?");
+			 
+			 pstmtShow.setInt(1, idBuscado);
+			 
+			 Product p = new Product();
+			 p.setName(JOptionPane.showInputDialog("Ingrese el nombre del producto: "));
+			 p.setDescription(JOptionPane.showInputDialog("Ingrese descripcion: "));
+			 p.setPrice(Integer.parseInt(JOptionPane.showInputDialog("Ingrese el precio: ")));
+			 p.setStock(Integer.parseInt(JOptionPane.showInputDialog("Ingrese el stock: ")));
+			 int shipping = JOptionPane.showConfirmDialog(null, "¿Envío incluido?: ");
+			 if (shipping == 1) {p.setShippingIncluded(false);}
+			 else{p.setShippingIncluded(true);}
+			 
+			 rs = pstmtShow.executeQuery();
+			 
+			 if(rs.next()) {
+					p.setId(rs.getInt("idProduct"));
+	                p.setName(rs.getString("name"));
+	                p.setDescription(rs.getString("description"));
+	                p.setPrice(rs.getInt("price"));
+	                p.setStock(rs.getInt("stock"));
+	                p.setShippingIncluded(rs.getBoolean("shippingIncluded"));
+				}
+			 
+			 JOptionPane.showMessageDialog(null, p.mostrarDatos());
+			 
+			 
+			 PreparedStatement pstmUpdate = conn.prepareStatement("UPDATE Product SET name=?,description=?, price=?, stock=?, shippingIncluded=? WHERE idProduct=?", 
+				PreparedStatement.RETURN_GENERATED_KEYS);
+			 			 
+			 pstmUpdate.setString(1, p.getName());
+			 pstmUpdate.setString(2, p.getDescription());
+			 pstmUpdate.setDouble(3, p.getPrice());
+			 pstmUpdate.setInt(4, p.getStock());
+			 pstmUpdate.setBoolean(5, p.isShippingIncluded());
+			 pstmUpdate.setInt(6, idBuscado);
+			 
+			 pstmUpdate.executeUpdate();
+			 
+			 //rs = pstmUpdate.getGeneratedKeys();
+			 
+//			 if(rs != null && rs.next()) {
+//	        	 int id = rs.getInt(1);
+//	             p.setId(id);
+//			 }
+			 
+			 p.setId(idBuscado);
+			 
+			 JOptionPane.showMessageDialog(null, p.mostrarDatos());
+			 			 
+			 
+		} catch (SQLException ex) {
+			// Manejo de errores
+		    System.out.println("SQLException: " + ex.getMessage());
+		    System.out.println("SQLState: " + ex.getSQLState());
+		    System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		
+		
+		
+		
+	} // end actualizaProducto
 	
 	
 	
